@@ -107,19 +107,6 @@ public class ColorChooserDialog extends DialogFragment
         colorChooserCustomFrame != null && colorChooserCustomFrame.getVisibility() == View.VISIBLE);
   }
 
-  @Override
-  public void onAttach(Context context) {
-    super.onAttach(context);
-    if (getActivity() instanceof ColorCallback) {
-      callback = (ColorCallback) getActivity();
-    } else if (getParentFragment() instanceof ColorCallback) {
-      callback = (ColorCallback) getParentFragment();
-    } else {
-      throw new IllegalStateException(
-          "ColorChooserDialog needs to be shown from an Activity/Fragment implementing ColorCallback.");
-    }
-  }
-
   private boolean isInSub() {
     return getArguments().getBoolean("in_sub", false);
   }
@@ -583,6 +570,10 @@ public class ColorChooserDialog extends DialogFragment
 
   @NonNull
   public ColorChooserDialog show(FragmentManager fragmentManager) {
+    if (this.callback == null) {
+      throw new IllegalStateException("Callback missing: call .callback to set one!");
+    }
+
     String tag;
     Builder builder = getBuilder();
     if (builder.colorsTop != null) {
@@ -594,6 +585,12 @@ public class ColorChooserDialog extends DialogFragment
     }
     dismissIfNecessary(fragmentManager, tag);
     show(fragmentManager, tag);
+    return this;
+  }
+
+  @NonNull
+  public ColorChooserDialog setCallback(@NonNull ColorCallback callback) {
+    this.callback = callback;
     return this;
   }
 
@@ -630,6 +627,8 @@ public class ColorChooserDialog extends DialogFragment
     @Nullable int[][] colorsSub;
     @Nullable String tag;
     @Nullable Theme theme;
+
+    ColorCallback callback = null;
 
     boolean accentMode = false;
     boolean dynamicButtonColor = true;
@@ -743,11 +742,18 @@ public class ColorChooserDialog extends DialogFragment
     }
 
     @NonNull
+    public Builder callback(@NonNull ColorCallback callback) {
+      this.callback = callback;
+      return this;
+    }
+
+    @NonNull
     public ColorChooserDialog build() {
       ColorChooserDialog dialog = new ColorChooserDialog();
       Bundle args = new Bundle();
       args.putSerializable("builder", this);
       dialog.setArguments(args);
+      dialog.setCallback(callback);
       return dialog;
     }
 

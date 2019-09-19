@@ -19,17 +19,24 @@ import com.afollestad.materialdialogs.internal.MDTintHelper;
 import com.afollestad.materialdialogs.util.DialogUtils;
 
 /** @author Aidan Follestad (afollestad) */
-class DefaultRvAdapter extends RecyclerView.Adapter<DefaultRvAdapter.DefaultVH> {
+public class DefaultRvAdapter extends RecyclerView.Adapter<DefaultRvAdapter.DefaultVH> {
 
   private final MaterialDialog dialog;
   @LayoutRes private final int layout;
   private final GravityEnum itemGravity;
   private InternalListCallback callback;
 
-  DefaultRvAdapter(MaterialDialog dialog, @LayoutRes int layout) {
+  public DefaultRvAdapter(MaterialDialog dialog, @LayoutRes int layout) {
     this.dialog = dialog;
     this.layout = layout;
     this.itemGravity = dialog.builder.itemsGravity;
+  }
+
+  public DefaultRvAdapter(DefaultRvAdapter adapter) {
+    this.dialog = adapter.dialog;
+    this.layout = adapter.layout;
+    this.itemGravity = dialog.builder.itemsGravity;
+    this.callback = adapter.callback;
   }
 
   void setCallback(InternalListCallback callback) {
@@ -41,6 +48,10 @@ class DefaultRvAdapter extends RecyclerView.Adapter<DefaultRvAdapter.DefaultVH> 
     final View view = LayoutInflater.from(parent.getContext()).inflate(layout, parent, false);
     DialogUtils.setBackgroundCompat(view, dialog.getListSelector());
     return new DefaultVH(view, this);
+  }
+
+  public void onBindViewHolder2(RecyclerView.ViewHolder holder, int index) {
+
   }
 
   @Override
@@ -109,6 +120,8 @@ class DefaultRvAdapter extends RecyclerView.Adapter<DefaultRvAdapter.DefaultVH> 
         }
       }
     }
+
+    this.onBindViewHolder2(holder, index);
   }
 
   @Override
